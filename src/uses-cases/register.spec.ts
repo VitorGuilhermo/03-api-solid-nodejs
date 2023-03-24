@@ -5,7 +5,7 @@ import { UserAlreadyExistsError } from './errors/user-already-exists-error'
 import { RegisterUseCase } from './register'
 
 describe('Register use case', () => {
-	it('should should be able to register', async () => {
+	it('should be able to register', async () => {
 		const usersRepository = new InMemoryUsersRepository()
 		const registerUseCase = new RegisterUseCase(usersRepository)
 
