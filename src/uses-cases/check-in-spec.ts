@@ -19,8 +19,8 @@ describe('Check-in use case', () => {
 			title: 'JS Gym',
 			description: 'JS Gym',
 			phone: '0',
-			latitude: new Decimal(0),
-			longiture: new Decimal(0),
+			latitude: new Decimal(-21.7954059),
+			longiture: new Decimal(-50.8705807),
 
 		})
 
@@ -35,8 +35,8 @@ describe('Check-in use case', () => {
 		const { checkIn } = await checkInUseCase.execute({
 			gymId: 'gym-01',
 			userId: 'user-01',
-			userLatitude: 0,
-			userLongitude: 0
+			userLatitude: -21.7954059,
+			userLongitude: -50.8705807
 		})
 
 		expect(checkIn.id).toEqual(expect.any(String))
@@ -48,15 +48,15 @@ describe('Check-in use case', () => {
 		await checkInUseCase.execute({
 			gymId: 'gym-01',
 			userId: 'user-01',
-			userLatitude: 0,
-			userLongitude: 0
+			userLatitude: -21.7954059,
+			userLongitude: -50.8705807
 		})
 
 		await expect(() => checkInUseCase.execute({
 			gymId: 'gym-02',
 			userId: 'user-02',
-			userLatitude: 0,
-			userLongitude: 0
+			userLatitude: -21.7954059,
+			userLongitude: -50.8705807
 		})).rejects.toBeInstanceOf(Error)
 	})
 
@@ -66,8 +66,8 @@ describe('Check-in use case', () => {
 		await checkInUseCase.execute({
 			gymId: 'gym-01',
 			userId: 'user-01',
-			userLatitude: 0,
-			userLongitude: 0
+			userLatitude: -21.7954059,
+			userLongitude: -50.8705807
 		})
 
 		vi.setSystemTime(new Date(2022, 3, 20, 8, 0, 0))
@@ -75,10 +75,29 @@ describe('Check-in use case', () => {
 		const { checkIn } = await checkInUseCase.execute({
 			gymId: 'gym-02',
 			userId: 'user-02',
-			userLatitude: 0,
-			userLongitude: 0
+			userLatitude: -21.7682352,
+			userLongitude: -50.9624695
 		})
 
 		expect(checkIn.id).toEqual(expect.any(String))
+	})
+
+	it('should not be able to check in on distance gym', async () => {
+		gymsRepository.items.push({
+			id: 'gym-02',
+			title: 'JS Gym',
+			description: 'JS Gym',
+			phone: '0',
+			latitude: new Decimal(-21.7954059),
+			longiture: new Decimal(-50.8705807),
+
+		})
+
+		await expect(() => checkInUseCase.execute({
+			gymId: 'gym-02',
+			userId: 'user-01',
+			userLatitude: -21.7682352,
+			userLongitude: -50.9624695
+		})).rejects.toBeInstanceOf(Error)
 	})
 })

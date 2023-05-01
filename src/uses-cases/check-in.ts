@@ -2,6 +2,7 @@ import { CheckIn } from '@prisma/client'
 import { CheckInsRepository } from '@/repositories/check-ins-repository'
 import { GymsRepository } from '@/repositories/gyms-repository'
 import { ResourceNotFoundError } from './errors/resource-not-found-error'
+import { getDistanceBetweenCoordinates } from '@/utils/get-distance-between-coordinates'
 
 interface CheckInUseCaseRequest {
     userId: string
@@ -25,7 +26,7 @@ export class CheckInUseCase {
 		this.gymsRepository = gymsRepository
 	}
 
-	async execute({userId, gymId}: CheckInUseCaseRequest): Promise<CheckInUseCaseResponse> {
+	async execute({userId, gymId, userLatitude, userLongitude}: CheckInUseCaseRequest): Promise<CheckInUseCaseResponse> {
 		const gym = await this.gymsRepository.findById(gymId)
 
 		if(!gym) {
@@ -33,8 +34,16 @@ export class CheckInUseCase {
 		}
 
 		//calculate distance between user and gym
-		
+		const distance = getDistanceBetweenCoordinates(
+			{latitude: userLatitude, longitude: userLongitude},
+			{latitude: gym.latitude.toNumber(), longitude: gym.longiture.toNumber()}
+		)
 
+		const MAX_DISTANCE = 0.1
+
+		if(distance > MAX_DISTANCE) {
+			throw new Error()
+		}
 
 		const checkInOnSameDate = await this.checkInsRepository.findByUserIdOnDate(userId, new Date())
 
