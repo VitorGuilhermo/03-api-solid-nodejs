@@ -22,7 +22,7 @@ export class InMemoryGymsRepository implements GymsRepository {
 		return gym
 
 	}
-
+	
 	async findById(id: string): Promise<Gym | null> {
 		const gym = this.items.find((item) => item.id === id)
 
@@ -30,5 +30,11 @@ export class InMemoryGymsRepository implements GymsRepository {
 			return null
         
 		return gym
+	}
+
+	async searchMany(title: string, page: number): Promise<Gym[]> {
+		return this.items
+			.filter(item => item.title.includes(title))
+			.slice((page - 1) * 20, page * 20)
 	}
 }
