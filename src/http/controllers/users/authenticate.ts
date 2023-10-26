@@ -18,7 +18,9 @@ export async function authenticate(req: FastifyRequest, res: FastifyReply) {
 		const { user } = await authenticateUseCase.execute({ email, password })
 
 		const token = await res.jwtSign(
-			{}, 
+			{
+				role: user.role,
+			}, 
 			{
 				sign: {
 					sub: user.id
@@ -26,9 +28,28 @@ export async function authenticate(req: FastifyRequest, res: FastifyReply) {
 			}
 		)
 
-		return res.status(200).send({
-			token
-		})
+		const refreshToken = await res.jwtSign(
+			{
+				role: user.role,
+			}, 
+			{
+				sign: {
+					sub: user.id,
+					expiresIn: '7d'
+				}
+			}
+		)
+
+		return res
+			.setCookie('refreshToken', refreshToken, {
+				path: '/',     //toda aplicação tem acesso
+				secure: true,  //cookie encriptado através do https
+				sameSite: true,//só vai ser acessível dento do msm domínio/site
+				httpOnly: true //só é acessível no backend
+			})
+			.status(200).send({
+				token
+			})
 	}
 	catch(err) {
 		if(err instanceof InvalidCredentialsError) {
